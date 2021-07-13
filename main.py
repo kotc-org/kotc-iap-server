@@ -1,5 +1,11 @@
+import os
 import json
+import requests
 from os import path
+import firebase_admin
+from datetime import datetime
+from firebase_admin import credentials
+from firebase_admin import firestore
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 from googleapiclient import discovery
@@ -14,6 +20,10 @@ app.add_middleware(
     allow_methods=["*", "POST"],
     allow_headers=["*"],
 )
+
+cred = credentials.Certificate('firestore.json')
+firebase_admin.initialize_app(cred)
+db = firestore.client()
 
 credentials = Credentials.from_service_account_file(
     'credentials.json',
@@ -32,10 +42,6 @@ with open('data') as file:
     data = json.loads(file.read())
 
 packageName = 'com.kingofthecurve.kingofthecurve'
-
-
-# print(api.InAppProduct)
-
 
 class IAPProduct(BaseModel):
     id: str
@@ -115,12 +121,98 @@ async def new_product(product: IAPProduct):
 
 
 @app.delete('/delete-product/{sku}')
-async def new_product(sku: str):
+async def delete_product(sku: str):
     try:
         api.delete(packageName=packageName, sku=sku).execute()
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
     write_product(sku)
+
+@app.get('/update-institutions')
+async def update_institutions_from_source():
+    new_data = json.loads(requests.get('https://raw.githubusercontent.com/Hipo/university-domains-list/master/world_universities_and_domains.json').content)
+    filtered_data = []
+
+    for item in new_data:
+        code = item['alpha_two_code']
+        if code == 'US' or code == 'CA':
+            filtered_data.append(item)
+
+    if os.path.exists('institutes.json'):
+        data = []
+        with open('institutes.json') as file:
+            data = json.loads(file.read())
+
+        for item in filtered_data:
+            for item2 in data:
+                if item['name'] == item2['name']:
+                    new_domains = []
+                    new_web_pages = []
+
+                    for domain in item['domains']:
+                        if domain not in new_domains:
+                            new_domains.append(domain)
+
+                    for web_page in item['web_pages']:
+                        if web_page not in new_web_pages:
+                            new_web_pages.append(web_page)
+
+                    for domain in item2['domains']:
+                        if domain not in new_domains:
+                            new_domains.append(domain)
+
+                    for web_page in item2['web_pages']:
+                        if web_page not in new_web_pages:
+                            new_web_pages.append(web_page)
+                
+                    item2['domains'] = new_domains
+                    item2['web_pages'] = new_web_pages
+ 
+        with open('institutes.json', 'w') as result:
+            result.write(json.dumps(data))
+    else:
+        with open('institutes.json', 'w') as result:
+            result.write(json.dumps(filtered_data))
+
+
+@app.get('/institutions')
+async def get_all_institutions():
+    return ['1', '2', '3', '4', '5']
+
+@app.get('/find-institute/{domain}')
+async def find_institute(domain: str):
+    data = []
+
+    if os.path.exists('institutes.json'):
+        with open('institutes.json') as result:
+            data = json.loads(result.read())
+
+    for item in data:
+        if domain in item['domains']:
+            return item
+    else:
+        return {}
+
+@app.get('/link-institute-email/{domain}/{id}')
+async def link_institute_email(domain: str, id: str):
+    user = db.collection('v2_users').document(id)
+    user_data = user.get()
+    if user_data.exists:
+        user.update({
+            'is_institution_verification_pending': True
+        })
+
+
+
+    # db.collection('v2_institution_verifications').add({
+    #     'user': id,
+    #     'started_at': datetime.now()
+    # })
+    # # .set({
+    # #     'is_institution_verification_pending': True
+    # # })
+    # print(user)
+    return {}
 
 
 def write_product(product):

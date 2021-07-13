@@ -1,0 +1,12 @@
+{
+  "type": "service_account",
+  "project_id": "kings-of-the-curve-sonal",
+  "private_key_id": "3822048f0fc1567fa315f1b3c9f3eb54a7dd466a",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQCkAK5rsnDO3Lbs\nsqggUGFiBnOXavH05ex1OZY5CmjLeoMFTV/bOsTqLY8NCMjvfcQ7rHzBZQ7Pj1za\nARfHjrxy9DDbUh3GTodgJMCOPXB3MLBruG66t3XSdTfEpu/9vMTzHve4+/T18pBC\nKc9nbQVBcZQNH3nzoTnqV+G63B7pA0i2Iq8inF+5F0cyaCUlOMwsbnHCdK1LhGX1\nySC3xLgiv+muuBuQUc90Dv4ddWy3oh9A15oWFFTsp7+pu6OmATleHcAQDK9U7m8F\nJH/HO2JPTf99rTxDDR/VtFK6NTAiDNLK1/mxdnuWlJxnVsKS9Vv3SOKqLhK6EPeg\nmybFmiKtAgMBAAECggEADOpE0hReT9wPx7oWBV1vHdIWPkFcxoVoxp5/VwSb1hJS\nyRMbzl7lbO+jiUo80Kdd0bk2peA4d1352O0nGz8BVigmxM7Fq305qfea9lieR7Sc\n4A7JIYkbDTTP7HudAKVh+SdiKL4mv0uX0q4KOEHcnRe9qf7lkqsKrYq4Kwf0ozLP\nuT23VWQho5Hb6daH7nCS3xp9F/JKZ/4LAN/LsrzQbioFnEBU9WyHqbWDNXOeGnfm\np2BawzxynqToOHOFJlGGk4pi/lPB5c7cgZXyxMNrgkxyFAAebuJ70lz9wRkCn6qB\ntuBBWY2TskvfXx5AMmnhMI8lZYMhX6CWghw4Bzzg3QKBgQDSnUvV13Q8HcKXg0jH\n+hoI3nO5dFPZzf1CuMyTYt0xSJ32inYUysGeOqCDKdFrUaWLefms6JOR2u31jdl4\nIoQZ4rCoOe04MqxM3eV7/gCB3uGT2Xl2jRg8MTYFox89e7qYeBCChb/UUiuOqiJ8\nGw016HC+sm0IVH5uOTHngG6XiwKBgQDHWALqzEylLx9W3EnijUJQCzI3N5bpssds\nTqez8h6tPucugKu4Noi/X8QMlliuTzf+zk6RSLl3Er3DsUAWfXQNBs/TZhUjB29n\nuU3HYlgtr0XC3t9gX0FKxjuHqqpsPgAEYtoa3pW0axKDZbk+pdXQuCvr+7I3DSHu\ngmiYbvC1pwKBgAM+7VZEVcQ/aSpQmaSLVC9izkHDay9mH0sR8gUrduE1j0mnZJ55\naXZ4zNR4poOS5Iw7uv9RLkUHLLemEf3p+kMz3Skai29cSI9+s/SvO27E8pEGvvp2\nvjLfR0fa9bZK29tRrl90lDo/cfBm6tUizZdRF7u4oDmKo9ArDXvV3N51AoGBAI6u\n21+uncm6QedNRAFJ9MYQTYAiZP2ffohygC0Xx4dft9+cL81qE1VPuab80jrp7v2O\nM8Rf1oh5PKTesS2n3DIaxxTcQ5LQFpialSZ6qP0CMJ+8IQz9AWIBI8kGindxpVd+\nXfjPiz4ZSaYNYJuL3dBIkv+VJ8mpt7jdVPqOpfKPAoGAFjokoaPLmwm4/c6R2jOa\nLUwam723JDvhPlfAzU1a2X2zXTxuKg6gNta126XN0DPW4pzsCYj1Uwj1Uxk3b3ix\nFuekyG4XGCKnbihw9ut9apHNp3ZX5YrPigTOtHVGz7Y4KlDbDnEElO6mU7sNdVK/\nf5Hw2qSCMs7AdDF69POeJFw=\n-----END PRIVATE KEY-----\n",
+  "client_email": "firebase-adminsdk-tpo6p@kings-of-the-curve-sonal.iam.gserviceaccount.com",
+  "client_id": "114493104750696303008",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/firebase-adminsdk-tpo6p%40kings-of-the-curve-sonal.iam.gserviceaccount.com"
+}
