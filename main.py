@@ -36,7 +36,8 @@ credentials = Credentials.from_service_account_file(
     'credentials.json',
     scopes=['https://www.googleapis.com/auth/androidpublisher']
 )
-api = discovery.build('androidpublisher', 'v3', credentials=credentials).inappproducts()
+api = discovery.build('androidpublisher', 'v3',
+                      credentials=credentials).inappproducts()
 
 data = {}
 
@@ -146,16 +147,21 @@ async def update_institutions_from_source():
     for item in new_data:
         code = item['alpha_two_code']
         if code == 'US' or code == 'CA':
-            filtered_data.append(item)
+            new_dict = dict(item)
+            new_dict['is_verified'] = True
+            filtered_data.append(new_dict)
 
     if os.path.exists('institutes.json'):
         data = []
         with open('institutes.json') as file:
             data = json.loads(file.read())
 
+        new_data = []
         for item in filtered_data:
+            found = False
             for item2 in data:
                 if item['name'] == item2['name']:
+                    found = True
                     new_domains = []
                     new_web_pages = []
 
@@ -178,8 +184,19 @@ async def update_institutions_from_source():
                     item2['domains'] = new_domains
                     item2['web_pages'] = new_web_pages
 
+                    if 'is_verified' not in item2:
+                        new_item = dict(item2)
+                        new_item['is_verified'] = True
+                        new_data.append(new_item)
+                    else:
+                        new_data.append(item2)
+
+                    break
+            if not found:
+                new_data.append(item)
+
         with open('institutes.json', 'w') as result:
-            result.write(json.dumps(data))
+            result.write(json.dumps(new_data))
     else:
         with open('institutes.json', 'w') as result:
             result.write(json.dumps(filtered_data))
@@ -187,7 +204,12 @@ async def update_institutions_from_source():
 
 @app.get('/institutions')
 async def get_all_institutions():
-    return ['1', '2', '3', '4', '5']
+    data = []
+
+    if os.path.exists('institutes.json'):
+        with open('institutes.json') as result:
+            data = json.loads(result.read())
+    return data
 
 
 @app.get('/find-institute/{domain}')
@@ -259,7 +281,8 @@ async def link_institute_email(domain: str, id: str):
             context = ssl.create_default_context()
             with smtplib.SMTP_SSL(smtp_server, port, context=context) as server:
                 server.login(sender_email, password)
-                server.sendmail(sender_email, receiver_email, message.as_string())
+                server.sendmail(sender_email, receiver_email,
+                                message.as_string())
             print("Successfully sent email")
         except smtplib.SMTPException:
             print("Error: unable to send email")
@@ -332,6 +355,66 @@ async def confirm_institute_email(id: str):
             """
 
 
+class Institute(BaseModel):
+    name: str
+    domains: list
+    web_pages: list
+    is_verified: bool
+    alpha_two_code: str
+
+    def to_dict(self):
+        return {
+            'name': self.name,
+            'domains': self.domains,
+            'web_pages': self.web_pages,
+            'is_verified': self.is_verified,
+            'alpha_two_code': self.alpha_two_code,
+        }
+
+
+@app.post('/new-institute')
+async def new_institute(institute: Institute):
+    data = await get_all_institutions()
+    data.append(institute.to_dict())
+
+    with open('institutes.json', 'w') as result:
+        result.write(json.dumps(data))
+
+
+@app.post('/update-institute/{name}')
+async def update_institute(name: str, institute: Institute):
+    print(name)
+    index = -1
+    data = await get_all_institutions()
+
+    for i in range(len(data)):
+        if data[i]['name'] == name:
+            index = i
+            break
+
+    if index != -1:
+        print(institute.to_dict())
+        data[index] = institute.to_dict()
+
+        with open('institutes.json', 'w') as result:
+            result.write(json.dumps(data))
+
+
+@app.post('/delete-institute/{name}')
+async def delete_institute(name: str):
+    item = None
+    data = await get_all_institutions()
+
+    for i in data:
+        if i['name'] == name:
+            item = i
+            break
+    data.remove(i)
+
+    with open('institutes.json', 'w') as result:
+        result.write(json.dumps(data))
+
+
 def write_product(product):
     if type(product) == 'str':
         if product in data:
@@ -341,10 +424,11 @@ def write_product(product):
     if product.id not in data or data[product.id] is None:
         data[product.id] = {}
 
-    data[product.id] = {'price': product.price, 'discount': product.discount, 'discountMode': product.discountMode}
+    data[product.id] = {'price': product.price,
+                        'discount': product.discount, 'discountMode': product.discountMode}
     with open('data', 'w') as output_file:
         output_file.write(json.dumps(data))
 
 
 if __name__ == '__main__':
-    uvicorn.run(app, port=8080, host='0.0.0.0')
+    uvicorn.run('main:app', port=8080, host='0.0.0.0', reload=True)
