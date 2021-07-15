@@ -428,7 +428,3 @@ def write_product(product):
                         'discount': product.discount, 'discountMode': product.discountMode}
     with open('data', 'w') as output_file:
         output_file.write(json.dumps(data))
-
-
-if __name__ == '__main__':
-    uvicorn.run('main:app', port=8000, host='0.0.0.0', reload=True)
