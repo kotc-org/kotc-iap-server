@@ -221,7 +221,7 @@ async def find_institute(domain: str):
             data = json.loads(result.read())
 
     for item in data:
-        if domain in item['domains']:
+        if domain in item['domains'] and item['is_verified']:
             return item
     else:
         return {}
@@ -371,19 +371,21 @@ class Institute(BaseModel):
             'alpha_two_code': self.alpha_two_code,
         }
 
-
 @app.post('/new-institute')
 async def new_institute(institute: Institute):
     data = await get_all_institutions()
-    data.append(institute.to_dict())
 
+    for i in range(len(data)):
+        if data[i]['name'].lower() == institute.name.lower():
+            return {}
+
+    data.append(institute.to_dict())
     with open('institutes.json', 'w') as result:
         result.write(json.dumps(data))
 
 
 @app.post('/update-institute/{name}')
 async def update_institute(name: str, institute: Institute):
-    print(name)
     index = -1
     data = await get_all_institutions()
 
@@ -431,4 +433,4 @@ def write_product(product):
 
 
 if __name__ == '__main__':
-    uvicorn.run('main:app', port=8080, host='0.0.0.0', reload=True)
+    uvicorn.run('main:app', port=8080, host='0.0.0.0')
