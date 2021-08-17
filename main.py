@@ -1,3 +1,4 @@
+# /usr/bin/python3 /usr/local/bin/gunicorn -w 4 -k uvicorn.workers.UvicornWorker main:app -D
 import datetime
 import json
 import os
@@ -65,11 +66,11 @@ class IAPProduct(BaseModel):
 
 @app.get('/get-products')
 async def get_all_products_google():
-    new_products = []
+    # new_products = []
     products = api.list(packageName=packageName).execute()
     for product in products['inappproduct']:
         if product['sku'] == 'three_months':
-            continue
+            products['inappproduct'].remove(product)
 
         if product['sku'] in data:
             detail = data[product['sku']]
@@ -80,8 +81,8 @@ async def get_all_products_google():
                 product['defaultPrice']['priceMicros'] = detail['price'] * 1000000
             product['discountMode'] = detail['discountMode']
 
-        new_products.append(product)
-    return new_products
+        # new_products.append(product)
+    return products
 
 
 @app.post('/update-product')
