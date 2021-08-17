@@ -65,8 +65,12 @@ class IAPProduct(BaseModel):
 
 @app.get('/get-products')
 async def get_all_products_google():
+    new_products = []
     products = api.list(packageName=packageName).execute()
     for product in products['inappproduct']:
+        if product['sku'] == 'three_months':
+            continue
+
         if product['sku'] in data:
             detail = data[product['sku']]
             discountMode = detail['discountMode']
@@ -75,7 +79,9 @@ async def get_all_products_google():
             if discountMode:
                 product['defaultPrice']['priceMicros'] = detail['price'] * 1000000
             product['discountMode'] = detail['discountMode']
-    return products
+
+        new_products.append(product)
+    return new_products
 
 
 @app.post('/update-product')
