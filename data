@@ -1,1 +1,1 @@
-{"twelve_month": {"price": 69.99, "discount": 59.99, "discountMode": true}, "lifetime": {"price": 149.99, "discount": 100.0, "discountMode": true}, "single_month": {"price": 9.99, "discount": 5.0, "discountMode": false}}
+{"lifetime": {"price": 149.99, "discount": 100.0, "discountMode": true}, "single_month": {"price": 9.99, "discount": 4.99, "discountMode": true}, "six_month": {"price": 39.99, "discount": 19.99, "discountMode": true}, "twelve_month": {"price": 69.99, "discount": 34.99, "discountMode": false}}

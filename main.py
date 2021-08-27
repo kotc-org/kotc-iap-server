@@ -1,4 +1,5 @@
-# /usr/bin/python3 /usr/local/bin/gunicorn -w 4 -k uvicorn.workers.UvicornWorker main:app -D
+# /usr/bin/python3 /usr/local/bin/gunicorn -w 4 -k uvicorn.workers.UvicornWorker main:app
+import math
 import datetime
 import json
 import os
@@ -86,8 +87,19 @@ async def get_all_products_google():
     return products
 
 
+def make_number(number):
+    d, w = math.modf(number)
+    dd = str(round(d, 2))[2:]
+    zeros = 6 - len(dd)
+
+    return str(w)[:-2] + dd + ('0' * zeros)
+
+
 @app.post('/update-product')
 async def update_product(product: IAPProduct):
+    price = make_number(product.price)
+    discount = make_number(product.discount)
+
     try:
         api.update(packageName=packageName, sku=product.id, autoConvertMissingPrices=True, body={
             'sku': product.id,
@@ -95,7 +107,7 @@ async def update_product(product: IAPProduct):
             'packageName': packageName,
             'purchaseType': product.type,
             'defaultPrice': {
-                'priceMicros': str(int((product.discount if product.discountMode else product.price) * 1000000)),
+                'priceMicros': discount if product.discountMode else price,
                 'currency': 'USD'
             },
             'listings': {
