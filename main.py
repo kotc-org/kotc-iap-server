@@ -443,6 +443,7 @@ async def payment_updated(request: Request):
 
 @app.websocket('/test-ios-ws')
 async def connect_to_ios(websocket: WebSocket):
+    global IOS_PAYMENT
     await websocket.accept()
     try:
         while True:
