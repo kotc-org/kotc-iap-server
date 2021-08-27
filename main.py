@@ -12,16 +12,20 @@ from os import path
 import firebase_admin
 import requests
 import uvicorn as uvicorn
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
 from firebase_admin import credentials
 from firebase_admin import firestore
 from google.oauth2.service_account import Credentials
 from googleapiclient import discovery
 from pydantic import BaseModel
+from fastapi.requests import Request
 from fastapi.responses import HTMLResponse
+import math
+import decimal
 
 app = FastAPI()
+IOS_PAYMENT = None
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -29,6 +33,15 @@ app.add_middleware(
     allow_methods=["*", "POST"],
     allow_headers=["*"],
 )
+
+
+def make_number(number):
+    d, w = math.modf(number)
+    dd = str(round(d, 2))[2:]
+    zeros = 6 - len(dd)
+
+    return str(w)[:-2] + dd + ('0' * zeros)
+
 
 cred = credentials.Certificate('firestore.json')
 firebase_admin.initialize_app(cred)
@@ -423,6 +436,38 @@ async def update_institute(name: str, institute: Institute):
             result.write(json.dumps(data))
 
 
+@app.post('/payment-update')
+async def payment_updated(request: Request):
+    IOS_PAYMENT = await request.json()
+
+
+@app.websocket('/test-ios-ws')
+async def connect_to_ios(websocket: WebSocket):
+    await websocket.accept()
+    try:
+        while True:
+            if IOS_PAYMENT is None:
+                continue
+            await websocket.send(IOS_PAYMENT)
+            IOS_PAYMENT = None
+    except WebSocketDisconnect:
+        print('Websocket client disconnected')
+
+
+# @app.websocket('/test-android-ws')
+# async def connect_to_android(websocket: WebSocket):
+#     await websocket.accept()
+#     try:
+#         while True:
+#             data = await websocket.receive_text()
+#             await manager.send_personal_message(f"You wrote: {data}", websocket)
+#             await manager.broadcast(f"Client #{client_id} says: {data}")
+#     except WebSocketDisconnect:
+#         manager.disconnect(websocket)
+#         await manager.broadcast(f"Client #{client_id} left the chat")
+#     pass
+
+
 @app.post('/delete-institute/{name}')
 async def delete_institute(name: str):
     item = None
@@ -455,3 +500,6 @@ def write_product(product):
 
 if __name__ == '__main__':
     uvicorn.run('main:app', port=8080, host='0.0.0.0')
+
+# https://api.revenuecat.com/v1/incoming-webhooks/apple-server-to-server-notification/nfQmioOedPdfbOGpkfvmVQTCsvXUTkJH
+# {"detail":"<HttpError 400 when requesting https://androidpublisher.googleapis.com/androidpublisher/v3/applications/com.kingofthecurve.kingofthecurve/inappproducts/twelve_month?autoConvertMissingPrices=true&alt=json returned \"Default price is too low.\". Details: \"Default price is too low.\">"}
